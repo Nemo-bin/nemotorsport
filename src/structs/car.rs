@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Car {
     pub statblock: CarStatBlock,
 }
@@ -19,22 +20,23 @@ impl Default for Car {
     }
 }
 
+#[derive(Debug)]
 pub struct CarStatBlock {
-    pub engine: Engine,
-    pub gearbox: Gearbox,
-    pub front_wing: FrontWing,
-    pub rear_wing: RearWing,
-    pub suspension: Suspension,
-    pub brakes: Brakes,
+    pub engine     : Engine,
+    pub gearbox    : Gearbox,
+    pub front_wing : FrontWing,
+    pub rear_wing  : RearWing,
+    pub suspension : Suspension,
+    pub brakes     : Brakes,
 }
 
 impl CarStatBlock {
     pub fn new(
-        engine: Engine,
-        gearbox: Gearbox,
-        front_wing: FrontWing,
-        rear_wing: RearWing,
-        suspension: Suspension,
+        engine     : Engine,
+        gearbox    : Gearbox,
+        front_wing : FrontWing,
+        rear_wing  : RearWing,
+        suspension : Suspension,
         brakes: Brakes,
     ) -> Self {
         CarStatBlock {
@@ -51,16 +53,17 @@ impl CarStatBlock {
 impl Default for CarStatBlock {
     fn default() -> Self {
         CarStatBlock {
-            engine: Engine::default(),
-            gearbox: Gearbox::default(),
-            front_wing: FrontWing::default(),
-            rear_wing: RearWing::default(),
-            suspension: Suspension::default(),
-            brakes: Brakes::default(),
+            engine     : Engine::default(),
+            gearbox    : Gearbox::default(),
+            front_wing : FrontWing::default(),
+            rear_wing  : RearWing::default(),
+            suspension : Suspension::default(),
+            brakes     : Brakes::default(),
         }
     }
 }
 
+#[derive(Debug)]
 pub struct Engine {
     pub performance: u16,
     pub reliability: u16,
@@ -84,6 +87,7 @@ impl Default for Engine {
     }
 }
 
+#[derive(Debug)]
 pub struct Gearbox {
     pub performance: u16,
     pub reliability: u16,
@@ -107,6 +111,7 @@ impl Default for Gearbox {
     }
 }
 
+#[derive(Debug)]
 pub struct FrontWing {
     pub performance: u16,
     pub reliability: u16,
@@ -130,6 +135,7 @@ impl Default for FrontWing {
     }
 }
 
+#[derive(Debug)]
 pub struct RearWing {
     pub performance: u16,
     pub reliability: u16,
@@ -153,6 +159,7 @@ impl Default for RearWing {
     }
 }
 
+#[derive(Debug)]
 pub struct Suspension {
     pub performance: u16,
     pub reliability: u16,
@@ -176,6 +183,7 @@ impl Default for Suspension {
     }
 }
 
+#[derive(Debug)]
 pub struct Brakes {
     pub performance: u16,
     pub reliability: u16,
