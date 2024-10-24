@@ -1,4 +1,4 @@
-General Ideas:
+Ideas:
 Cars have specific stats per components
     -   Build parts
     -   Buy parts
@@ -9,7 +9,7 @@ Tracks weight the importance of component's stats based on the track layout
 
 Log drivers / team's career info
 
-The player manages a team and steps through each race
+The player manages a team and steps through each lap of each race
     -   Selects strategies etc for each race
 
 Need to add weather
@@ -23,10 +23,21 @@ Drivers have specific stats for different attributes
 
 A young driver academy feature could be cool. 
 
+Each driver has a race struct:
+    -   tracks penalties
+    -   tracks driver's every laptime of the race
+        -   can be used to determine fastest lap
+        -   can be used to sum total time + penalties
+    -   tracks dnfs
+    -   tracks tyre degradation
+    -   tracks fuel
+    -   tracks strategy (pits, engine modes, push / lift and coast etc)
+
 TODO:
-    Sim::new():
-        -   generate teams
-            -   for now this may be easier to just hardcode in teams and not worry about new teams. 
-        -   make drivers non default? This could be either by random cars / stats or have initial values hardcoded in 
-            -   The latter is definitely preferable. 
-        -   generate tracks
+    Work on race logic
+        -   Implement weather
+        -   Implement tyre degradation
+        -   Implement fuel use
+        -   Implement fuel weight impact on lap time
+    Team name generation
+    May need an algorithm to determine team_average_performance

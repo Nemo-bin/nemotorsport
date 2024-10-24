@@ -16,6 +16,9 @@ pub struct Simulation {
 }
 
 impl Simulation {
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // INITIALISATION
+    ////////////////////////////////////////////////////////////////////////////////////////////
     pub fn new() -> Self {
         Simulation {
             year     : 0,
@@ -34,7 +37,7 @@ impl Simulation {
 
     fn populate_team_array(&mut self){
         let teams_len = self.teams.len();
-        for t in 0..(teams_len - 2) {
+        for t in 0..(teams_len - 1) {
             self.teams[t] = self.generate_new_team();
         }
         self.teams[teams_len - 1] = self.generate_player_team()
@@ -135,14 +138,11 @@ impl Simulation {
     fn generate_new_track(&self) -> Track {
         let name = self.generate_new_track_name();
         let stat_weights = generate_track_stat_weights();
-        Track::new(
-            name,
-            stat_weights,
-        )
+        Track::new(name, stat_weights)
     }
 
     fn generate_new_track_name(&self) -> String {
-        let track_name = loop {
+        loop {
             let countries = read_names_from_file("src\\assets\\names\\countries.txt").expect("File not found");
             let mut rng = thread_rng();
         
@@ -160,12 +160,40 @@ impl Simulation {
                 return potential_name;
             }
         };
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // SIMULATION LOGIC
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
-        return track_name;
+    pub fn run_race(&mut self) {
+        let week = self.week as usize;
+        if week >= self.calendar.len() {
+            eprintln!("Error: Invalid week index.");
+            return;
+        }
+    
+        let lap_count = self.calendar[week].laps;
+        let mut lap = 1;
+    
+        while lap <= lap_count {
+            let track = &self.calendar[week];
+    
+            for driver in &mut self.drivers {
+                driver.run_lap(track);
+            }
+
+            lap += 1;
+            self.sort_drivers_by_race_time();
+            println!("{:#?}", self.drivers[0]);
+        }
+    }
+
+    pub fn sort_drivers_by_race_time(&mut self) {
+        self.drivers.sort_by(|a, b| a.race.total_race_time.partial_cmp(&b.race.total_race_time).unwrap());
     }
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 fn read_names_from_file(file_path: &str) -> Result<Vec<String>, io::Error> {
     let contents = fs::read_to_string(file_path)?;
 
@@ -193,14 +221,12 @@ fn generate_new_driver_name() -> String {
 
 fn generate_track_stat_weights() -> TrackStatWeights {
     let mut rng = thread_rng();
-    let lower_bound = 0;
-    let upper_bound = 100;
-    let engine = rng.gen_range(lower_bound..upper_bound);
-    let gearbox = rng.gen_range(lower_bound..upper_bound);
-    let front_wing = rng.gen_range(lower_bound..upper_bound);
-    let rear_wing = rng.gen_range(lower_bound..upper_bound);
-    let suspension = rng.gen_range(lower_bound..upper_bound);
-    let brakes = rng.gen_range(lower_bound..upper_bound);
+    let engine = rng.gen();
+    let gearbox = rng.gen();
+    let front_wing = rng.gen();
+    let rear_wing = rng.gen();
+    let suspension = rng.gen();
+    let brakes = rng.gen();
 
     TrackStatWeights::new(
         engine,
@@ -235,12 +261,12 @@ fn generate_car_statblock(team_average_performance: u16) -> CarStatBlock {
     let suspension_performance = rng.gen_range(lower_bound..upper_bound);
     let brakes_performance = rng.gen_range(lower_bound..upper_bound);
 
-    let engine_reliability = rng.gen_range(10..=100);
-    let gearbox_reliability = rng.gen_range(10..=100);
-    let front_wing_reliability = rng.gen_range(10..=100);
-    let rear_wing_reliability = rng.gen_range(10..=100);
-    let suspension_reliability = rng.gen_range(10..=100);
-    let brakes_reliability = rng.gen_range(10..=100);
+    let engine_reliability = rng.gen_range(1..=100);
+    let gearbox_reliability = rng.gen_range(1..=100);
+    let front_wing_reliability = rng.gen_range(1..=100);
+    let rear_wing_reliability = rng.gen_range(1..=100);
+    let suspension_reliability = rng.gen_range(1..=100);
+    let brakes_reliability = rng.gen_range(1..=100);
 
     let engine = Engine::new(engine_performance, engine_reliability);
     let gearbox = Gearbox::new(gearbox_performance, gearbox_reliability);

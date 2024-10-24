@@ -6,5 +6,5 @@ fn main() {
     let mut sim = structs::sim::Simulation::new();
     sim.populate();
 
-    println!("{:#?}", sim.teams.iter().find(|t| t.control == structs::team::Control::Player).unwrap());
+    sim.run_race();
 }
