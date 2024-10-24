@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Track {
     pub name         : String,
     pub stat_weights : TrackStatWeights,
@@ -12,6 +13,15 @@ impl Track {
     }
 }
 
+impl Default for Track {
+    fn default() -> Self {
+        Track {
+            name: "Default".to_string(),
+            stat_weights: TrackStatWeights::default(),
+        }
+    }
+}
+#[derive(Debug)]
 pub struct TrackStatWeights {
     pub engine     : u16,
     pub gearbox    : u16,
@@ -28,7 +38,7 @@ impl TrackStatWeights {
         front_wing : u16,
         rear_wing  : u16,
         suspension : u16,
-        brakes: u16,
+        brakes     : u16,
     ) -> Self {
         TrackStatWeights {
             engine,
@@ -37,6 +47,19 @@ impl TrackStatWeights {
             rear_wing,
             suspension,
             brakes,
+        }
+    }
+}
+
+impl Default for TrackStatWeights {
+    fn default() -> Self {
+        TrackStatWeights {
+            engine     : 0,
+            gearbox    : 0,
+            front_wing : 0,
+            rear_wing  : 0,
+            suspension : 0,
+            brakes     : 0,
         }
     }
 }

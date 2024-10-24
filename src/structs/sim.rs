@@ -1,8 +1,8 @@
 use crate::structs::{
     driver::{Driver, DriverStatBlock},
     car::{Car, CarStatBlock, Engine, Gearbox, FrontWing, RearWing, Suspension, Brakes},
-    track::Track,
-    team::Team,
+    track::{Track, TrackStatWeights},
+    team::{Team, Control}
 };
 use rand::{Rng, seq::SliceRandom, thread_rng};
 use std::{fs, io};
@@ -12,37 +12,32 @@ pub struct Simulation {
     pub week     : u16,
     pub drivers  : [Driver; 20],
     pub teams    : [Team; 10],
-    // pub calendar : [Track; 24],
+    pub calendar : [Track; 24],
 }
 
 impl Simulation {
     pub fn new() -> Self {
         Simulation {
-            year    : 0,
-            week    : 0,
-            drivers : [Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default()],
-            teams   : [Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default()],
+            year     : 0,
+            week     : 0,
+            drivers  : [Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default(), Driver::default()],
+            teams    : [Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default(), Team::default()],
+            calendar : [Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default(), Track::default()],
         }
     }
 
     pub fn populate(&mut self) {
-        self.teams = self.populate_team_array();
-        self.drivers = self.populate_driver_array();
+        self.populate_team_array();
+        self.populate_driver_array();
+        self.populate_calendar_array();
     }
 
-    fn populate_team_array(&self) -> [Team; 10] {
-        [
-            self.generate_new_team(),
-            self.generate_new_team(),
-            self.generate_new_team(),
-            self.generate_new_team(),
-            self.generate_new_team(),
-            self.generate_new_team(),
-            self.generate_new_team(),
-            self.generate_new_team(),
-            self.generate_new_team(),
-            self.generate_new_team(),
-        ]
+    fn populate_team_array(&mut self){
+        let teams_len = self.teams.len();
+        for t in 0..(teams_len - 2) {
+            self.teams[t] = self.generate_new_team();
+        }
+        self.teams[teams_len - 1] = self.generate_player_team()
     }
 
     fn generate_new_team(&self) -> Team {
@@ -50,18 +45,28 @@ impl Simulation {
         let name = "Default".to_string();
         let team_id = self.generate_new_team_id();
         let team_average_performance = rng.gen_range(5..=95);
-        Team::new(name, team_id, team_average_performance)
+        Team::new(name, team_id, team_average_performance, Control::Npc)
     }
 
-    fn populate_driver_array(&self) -> [Driver; 20] {
-        let mut driver_array = [self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0), self.generate_new_driver(0)];
+    fn generate_player_team(&self) -> Team {
+        let mut input = String::new();
+        println!("Please enter your team name:");
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read line");
+
+        let name = input.trim().to_string();
+        let team_id = self.generate_new_team_id();
+        let team_average_performance = 30;
+        Team::new(name, team_id, team_average_performance, Control::Player)
+    }
+
+    fn populate_driver_array(&mut self) {
         for t in 0..self.teams.len() {
             let team_id = self.teams[t].team_id;
-            driver_array[2*t] = self.generate_new_driver(team_id);
-            driver_array[2*t + 1] = self.generate_new_driver(team_id);
+            self.drivers[2*t] = self.generate_new_driver(team_id);
+            self.drivers[2*t + 1] = self.generate_new_driver(team_id);
         }
-
-        return driver_array;
     }
 
     fn generate_new_driver(&self, team_id: u32) -> Driver {
@@ -120,6 +125,56 @@ impl Simulation {
             } // Loop back and restart if not unique.
         }
     }
+
+    fn populate_calendar_array(&mut self) {
+        for t in 0..self.calendar.len() {
+            self.calendar[t] = self.generate_new_track();
+        }
+    }
+
+    fn generate_new_track(&self) -> Track {
+        let name = self.generate_new_track_name();
+        let stat_weights = generate_track_stat_weights();
+        Track::new(
+            name,
+            stat_weights,
+        )
+    }
+
+    fn generate_new_track_name(&self) -> String {
+        let track_name = loop {
+            let countries = read_names_from_file("src\\assets\\names\\countries.txt").expect("File not found");
+            let mut rng = thread_rng();
+        
+            let potential_name = countries.choose(&mut rng).unwrap().to_string();
+            
+            let mut name_exists = false;
+            for track in &self.calendar {
+                if potential_name == track.name {
+                    name_exists = true;
+                    break;
+                }
+            }
+
+            if !name_exists {
+                return potential_name;
+            }
+        };
+
+        return track_name;
+    }
+}
+
+
+fn read_names_from_file(file_path: &str) -> Result<Vec<String>, io::Error> {
+    let contents = fs::read_to_string(file_path)?;
+
+    let names: Vec<String> = contents
+        .split(',')
+        .map(|name| name.trim().to_string())
+        .collect();
+        
+    Ok(names)
 }
 
 fn generate_new_driver_name() -> String {
@@ -136,15 +191,25 @@ fn generate_new_driver_name() -> String {
     return full_name;
 }
 
-fn read_names_from_file(file_path: &str) -> Result<Vec<String>, io::Error> {
-    let contents = fs::read_to_string(file_path)?;
+fn generate_track_stat_weights() -> TrackStatWeights {
+    let mut rng = thread_rng();
+    let lower_bound = 0;
+    let upper_bound = 100;
+    let engine = rng.gen_range(lower_bound..upper_bound);
+    let gearbox = rng.gen_range(lower_bound..upper_bound);
+    let front_wing = rng.gen_range(lower_bound..upper_bound);
+    let rear_wing = rng.gen_range(lower_bound..upper_bound);
+    let suspension = rng.gen_range(lower_bound..upper_bound);
+    let brakes = rng.gen_range(lower_bound..upper_bound);
 
-    let names: Vec<String> = contents
-        .split(',')
-        .map(|name| name.trim().to_string())
-        .collect();
-        
-    Ok(names)
+    TrackStatWeights::new(
+        engine,
+        gearbox,
+        front_wing,
+        rear_wing,
+        suspension,
+        brakes,
+    )
 }
 
 fn generate_driver_statblock(team_average_performance: u16) -> DriverStatBlock { 
