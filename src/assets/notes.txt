@@ -1,0 +1,32 @@
+General Ideas:
+Cars have specific stats per components
+    -   Build parts
+    -   Buy parts
+    -   Research
+    -   Stats are out of 100
+
+Tracks weight the importance of component's stats based on the track layout
+
+Log drivers / team's career info
+
+The player manages a team and steps through each race
+    -   Selects strategies etc for each race
+
+Need to add weather
+
+Teams have budgets based on sponsors and prize money
+    -   marketability stat based on drivers and performance
+
+Drivers have specific stats for different attributes
+    -   Driver stats are out of 100
+    -   Add traits for drivers that add unique effects. 
+
+A young driver academy feature could be cool. 
+
+TODO:
+    Sim::new():
+        -   generate teams
+            -   for now this may be easier to just hardcode in teams and not worry about new teams. 
+        -   make drivers non default? This could be either by random cars / stats or have initial values hardcoded in 
+            -   The latter is definitely preferable. 
+        -   generate tracks
